@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package marshallog_zap;
+option go_package = "github.com/daneeqx/pro-gen-marshallog-zap/gen;marshallog_zap";
+
+import "google/protobuf/descriptor.proto";
+
+// Enum for masking strategies
+enum MaskStrategy {
+  MASK_NONE = 0;
+  MASK_FULL = 1;        // "***"
+  MASK_PARTIAL = 2;     // "ab***ef"
+  MASK_HASH = 3;        // "sha256:abc123..."
+  MASK_REDACTED = 4;    // "[REDACTED]"
+  MASK_EMAIL = 5;       // "u***@ex***le.com"
+  MASK_PHONE = 6;       // "+1-***-***-1234"
+  MASK_CREDIT_CARD = 7; // "**** **** **** 1234"
+}
+
+// Enum for log levels
+enum LogLevel {
+  LOG_TRACE = 0;
+  LOG_DEBUG = 1;
+  LOG_INFO = 2;
+  LOG_WARN = 3;
+  LOG_ERROR = 4;
+  LOG_FATAL = 5;
+}
+
+// Field-level options
+extend google.protobuf.FieldOptions {
+  // Original options
+  bool mask = 50001;
+  bool hide_log = 50002;
+  
+  // New masking options
+  MaskStrategy mask_strategy = 50003;
+  string custom_mask_pattern = 50004; // e.g., "***" or "[HIDDEN]"
+  
+  // Logging control
+  LogLevel min_log_level = 50005;     // Only log at this level or higher
+  string log_field_name = 50006;      // Custom field name in logs
+  
+  // Validation and formatting
+  bool omit_empty = 50007;            // Skip empty values in logs
+  bool flatten = 50008;               // Flatten nested objects
+  string format_template = 50009;     // Custom format: "User: {name} ({id})"
+  
+  // Performance options
+  bool lazy_eval = 50010;             // Lazy evaluation for expensive computations
+  int32 max_length = 50011;           // Truncate long strings/arrays
+  
+  // Security and compliance
+  bool pii_data = 50012;              // Mark as Personally Identifiable Information
+  bool sensitive = 50013;             // Generic sensitive data marker
+  repeated string compliance_tags = 50014; // ["GDPR", "HIPAA", "PCI"]
+}
+
+// Message-level options
+extend google.protobuf.MessageOptions {
+  bool enable_audit_log = 50101;      // Enable audit logging for this message
+  string log_prefix = 50102;          // Prefix for all log entries
+  bool include_metadata = 50103;      // Include timestamps, request IDs, etc.
+  LogLevel default_log_level = 50104; // Default level for all fields
+  bool enable_structured_logging = 50105; // Use structured JSON logging
+  string correlation_id_field = 50106;    // Field to use as correlation ID
+}
+
+// Service-level options  
+extend google.protobuf.ServiceOptions {
+  bool enable_request_logging = 50201;  // Log all incoming requests
+  bool enable_response_logging = 50202; // Log all outgoing responses  
+  bool enable_error_logging = 50203;    // Log all errors
+  int32 slow_request_threshold_ms = 50204; // Log slow requests
+}
+
+// Method-level options
+extend google.protobuf.MethodOptions {
+  bool skip_logging = 50301;           // Skip logging for this method
+  LogLevel override_log_level = 50302; // Override service default
+  bool log_request_body = 50303;       // Log request body
+  bool log_response_body = 50304;      // Log response body
+  repeated string exclude_fields = 50305; // Fields to exclude from logging
+}

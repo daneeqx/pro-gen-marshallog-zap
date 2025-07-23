@@ -1,0 +1,16 @@
+version: v2
+
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/daneeqx/pro-gen-marshallog-zap
+
+plugins:
+  - local: protoc-gen-go
+    out: gen
+    opt: paths=source_relative
+
+
+inputs:
+- directory: .
